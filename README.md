@@ -29,7 +29,7 @@ This project focuses on implementing and analyzing operations on Binary Search T
 This project involves implementing a priority queue using an indexed heap to efficiently handle priority updates. The tasks include:
 1. Implementing a `PQ` class with operations such as `insert`, `deleteMin`, `findMin`, `updatePriority`, `isEmpty`, `size`, and `makeEmpty`.
 2. Documenting the design and demonstrating the correctness of the implementation.
-3. (Optional) Conducting an experiment to compare the performance of the indexed heap with a simple heap for various operations.
+3. Conducting an experiment to compare the performance of the indexed heap with a simple heap for various operations.
 
 **Files:**
 - `PQ.h`: Implementation of the `PQ` class.
@@ -41,18 +41,14 @@ This project involves implementing a priority queue using an indexed heap to eff
 
 **Description:**
 This project involves conducting experiments to observe and quantify the effects of CPU cache on data structure performance. The tasks include:
-1. Implementing two out of four specified experiments, with at least one being either experiment 3 or 4.
+1. Implementing the following experiments
    - Experiment 1: Demonstrates cache effects using loops with different array access patterns.
-   - Experiment 2: Observes how access times change with array sizes relative to cache sizes.
    - Experiment 3: Compares traversal times of lists implemented as arrays, simple linked lists, and unrolled linked lists.
-   - Experiment 4: Compares access times in search trees with single data elements per node and B-Trees.
 2. Writing a report detailing the experimental setup, data, and interpretations.
 
 **Files:**
 - `exp1.cpp`: Implementation for Experiment 1.
-- `exp2.cpp`: Implementation for Experiment 2.
-- `exp3.cpp`: Implementation for Experiment 3 (if chosen).
-- `exp4.cpp`: Implementation for Experiment 4 (if chosen).
+- `exp3.cpp`: Implementation for Experiment 3.
 - `report.pdf`: Contains the experiment reports.
 - `Makefile`: Ensures proper compilation and cleaning of the project.
 
