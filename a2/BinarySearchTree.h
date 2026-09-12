@@ -148,7 +148,14 @@ class BinarySearchTree
     }
     int height() 
     {
-         if (((root->left)==nullptr)&&((root->right)==nullptr))
+         if( root == nullptr )
+        {
+            // Empty tree: match the -1-for-empty convention used
+            // elsewhere in this codebase (e.g. AvlNode::height below),
+            // instead of dereferencing a null root and crashing.
+            return -1;
+        }
+        else if (((root->left)==nullptr)&&((root->right)==nullptr))
         {
             return 0;
         }
@@ -168,7 +175,7 @@ class BinarySearchTree
 
     int depth( const Comparable & x ) const
         {
-            depth( x, root );
+            return depth( x, root );
         }
 
     /**

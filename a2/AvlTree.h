@@ -117,7 +117,14 @@ class AvlTree
     int height() 
     { 
         //bool search=true;
-         if (((root->left)==nullptr)&&((root->right)==nullptr))
+         if( root == nullptr )
+        {
+            // Empty tree: matches the -1-for-empty convention the private
+            // height(AvlNode*) overload above already uses, instead of
+            // dereferencing a null root and crashing.
+            return -1;
+        }
+        else if (((root->left)==nullptr)&&((root->right)==nullptr))
         {
             return 0;
         }
@@ -139,7 +146,7 @@ class AvlTree
 
     int depth( const Comparable & x ) const
     {
-        depth( x, root );
+        return depth( x, root );
     }
 
     void displayLinks( ostream & out = cout ) const

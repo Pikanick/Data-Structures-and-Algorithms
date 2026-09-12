@@ -226,7 +226,7 @@ class AvlTree
     {
          if( t == nullptr )
         {
-            cout<<"node not found!"<<endl;
+            return;
         }
         // else if( taskid < t->TaskID )
         // {
@@ -252,7 +252,7 @@ class AvlTree
     {
         if( t == nullptr )
         {
-            cout<<"node not found!"<<endl;
+            return -1; // not found
         }
         else if( x < t->TaskID )
         {
@@ -278,7 +278,7 @@ class AvlTree
     {
         if( t == nullptr )
         {
-            cout<<"node not found!"<<endl;
+            return nullptr; // not found
         }
         else if( x < t->TaskID )
         {
@@ -302,10 +302,7 @@ class AvlTree
         {
             int ID=t->TaskID;
             delete t;
-            cout<<t->TaskID<<endl;
-            cout<<"min deleted in avl"<<endl;
             t = nullptr;
-            //cout<<t->TaskID<<endl;
             return ID;
         }
         else if (((t->left)==nullptr)&&((t->right)!=nullptr)) // right child exists
@@ -326,9 +323,16 @@ class AvlTree
         }
         else if( t->left != nullptr && t->right != nullptr ) // Two children
         {
-            int ID=t->TaskID;
-            t->TaskID = findMin( t->right )->TaskID; // find successor and replace
-            remove( t->TaskID, t->right );// delete sucessor
+            // See remove()'s two-children case for why this splices the
+            // successor node in rather than copying its key and freeing
+            // it: that used to free a live, unrelated task's node while
+            // BinaryHeap::pointers still held a raw pointer to it.
+            int ID = t->TaskID;
+            AvlNode * successor = detachMin( t->right );
+            successor->left = t->left;
+            successor->right = t->right;
+            delete t;
+            t = successor;
             return ID;
         }
         balance( t );
@@ -418,6 +422,23 @@ class AvlTree
      * t is the node that roots the subtree.
      * Set the new root of the subtree.
      */
+    // Detach and return the leftmost (minimum) node of the subtree rooted
+    // at t, relinking and rebalancing what's left behind as the recursion
+    // unwinds. The returned node is NOT deleted -- it's still a live
+    // object, just no longer part of this subtree.
+    AvlNode * detachMin( AvlNode * & t )
+    {
+        if( t->left == nullptr )
+        {
+            AvlNode * result = t;
+            t = t->right;
+            return result;
+        }
+        AvlNode * result = detachMin( t->left );
+        balance( t );
+        return result;
+    }
+
     void remove( const Comparable & x, AvlNode * & t )
     {
         if( t == nullptr )
@@ -429,8 +450,21 @@ class AvlTree
             remove( x, t->right );
         else if( t->left != nullptr && t->right != nullptr ) // Two children
         {
-            t->TaskID = findMin( t->right )->TaskID;
-            remove( t->TaskID, t->right );
+            // Splice the in-order successor into t's place instead of
+            // copying its TaskID/heapindex into t and then deleting the
+            // successor's own node: BinaryHeap::pointers holds raw
+            // AvlNode* pointers keyed by task identity (it's how find()
+            // gives O(1) index lookups), so the physical node object for
+            // a surviving task must never be the one that gets freed --
+            // that used to free a live, unrelated task's node while
+            // Heap.pointers still pointed at it, a use-after-free that
+            // only showed up once a deletion actually hit a two-children
+            // case (never exercised by the original, disabled demo test).
+            AvlNode * successor = detachMin( t->right );
+            successor->left = t->left;
+            successor->right = t->right;
+            delete t;
+            t = successor;
         }
         else
         {

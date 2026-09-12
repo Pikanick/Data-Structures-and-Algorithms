@@ -9,8 +9,14 @@ using namespace std;
 
 clock_t start, finish ;// used for getting the time. 
 double time_taken =0;
-const int size=100000;
-double time1[size], time2[size];
+// Renamed from "size": at global scope, alongside "using namespace std;"
+// (here and in exp3.cpp, which includes this header), that name collided
+// with the std::size() function template and made every use of it a hard
+// compile error ("reference to 'size' is ambiguous") on any compiler new
+// enough to have std::size (introduced in C++17) -- this header hasn't
+// compiled at all under a reasonably current compiler.
+const int UNROLLED_LIST_TIMING_SIZE=100000;
+double time1[UNROLLED_LIST_TIMING_SIZE], time2[UNROLLED_LIST_TIMING_SIZE];
 double total1=0.0, total2=0.0, ave1=0.0, ave2=0.0;
 
 double elapsed_time( clock_t start, clock_t finish){ // returns elapsed time in milliseconds 
@@ -84,9 +90,15 @@ void unrolled_list::display_list()
         //getch();
         return;
     }
+    // Just displays the list contents -- no timing here. The actual
+    // traversal-time comparison against the singly linked list lives in
+    // exp3.cpp, measured without any cout in the timed loop (printing
+    // ~100,000 lines while the clock is running would make I/O cost
+    // dominate the measurement, defeating the point of the experiment).
+    // This function used to *also* time itself this way and print
+    // "Traversal time for Unrolled Linked List", which both duplicated
+    // and contaminated the real measurement in exp3.cpp.
     node* nod=first;
-    int j=0;
-    start = clock(); 
     while(nod!=nullptr)
     {
         cout<<"Node "<<i<<":"<<endl;
@@ -96,13 +108,6 @@ void unrolled_list::display_list()
         i++;
         nod=nod->next;
     }
-    finish = clock(); 
-    time_taken = elapsed_time(start,finish); 
-    // time1[j]=time_taken;
-    // total1+=time1[j];
-    // j++;    
-    // ave1=total1/size;
-    cout<<"Traversal time for Unrolled Linked List: "<<time_taken<<" ms"<<endl;
     //getch();
 }
 

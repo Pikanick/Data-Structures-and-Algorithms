@@ -63,250 +63,126 @@ class BinaryHeap
 
     void insert(AvlTree<int>::AvlNode * & t, int p )// insert node pointer and priority into heap vector
     {
-        if((pointers.size()<pointers.capacity())&&(priorities.size()<priorities.capacity()))
-        {
-            pointers.push_back(t);
-            priorities.push_back(p);
-        }
-
-        else
-        {
-            pointers.reserve(2*pointers.capacity());
-            priorities.reserve(2*priorities.capacity());
-            pointers.push_back(t);
-            priorities.push_back(p);
-        }
-
-        percolateUp();
-
-    }
-
-    void percolateUp()
-    {
-        int v,p;
-        v=priorities.size();//child
-        p=floor((v-1)/2);//parent
-
-        while(v>0 && priorities.at(v)<priorities.at(p) )
-        {
-            swap(priorities.at(v),priorities.at(p));
-            swap(pointers.at(v),pointers.at(p));
-            v=p;
-            p=floor((v-2)/2);
-        }
-        //return v;
-
-        // int v,p;
-        // v=pointers.size();//child
-        // p=pointers.at((v-1)/2);//parent
-
-        // while(v>0 && pointers.at(v)<pointers.at(p) )
-        // {
-        //     swap(pointers.at(v),pointers.at(p));
-        //     v=p;
-        //     p=(v-2)/2;
-        // }
-
-        // int v2,p2;
-        // v2=priorities.size();//child
-        // p2=priorities.at((v-1)/2);//parent
-
-        // while(v2>0 && priorities.at(v2)<priorities.at(p2) )
-        // {
-        //     swap(priorities.at(v2),priorities.at(p2));
-        //     v2=p2;
-        //     p2=(v2-2)/2;
-        // }
-
+        pointers.push_back(t);
+        priorities.push_back(p);
+        int idx = static_cast<int>(priorities.size()) - 1;
+        t->heapindex = idx;
+        percolateUp(idx);
     }
 
     int percolateUp(int hepindex)
     {
         int v2,p2;
         v2=hepindex;//child
-        p2=floor((v2-1)/2);//parent
+        p2=(v2-1)/2;//parent
 
         while(v2>0 && priorities.at(v2)<priorities.at(p2) )
         {
             swap(priorities.at(v2),priorities.at(p2));
             swap(pointers.at(v2),pointers.at(p2));
+            pointers.at(v2)->heapindex = v2;
+            pointers.at(p2)->heapindex = p2;
             v2=p2;
-            p2=floor((v2-2)/2);
+            p2=(v2-1)/2;//parent of the node's new position
         }
         return v2;
 
     }
 
-    void percolateDown()
-    {
-        int v=0;//parent
-
-        while((2*v+1)<priorities.size())// while v2 not a leaf
-        {
-            int child= 2*v+1; // left child
-            if(((2*v+1)<priorities.size())&& (priorities.at(2*v+2)<priorities.at(2*v+1)))
-            {
-                child= 2*v+2; // right child if exists and has smaller key
-            }
-
-            if(priorities.at(child)<priorities.at(v))
-            {
-                swap(priorities.at(child),priorities.at(v));
-                swap(pointers.at(child),pointers.at(v));
-                v=child;
-            }
-            if((priorities.at(2*v+1)>priorities.at(v))&&(priorities.at(2*v+2)>priorities.at(v)))
-            {    
-                cout<<"Percolate Down Done!"<<endl;
-                break;
-            }
-        }
-
-        // int v,p;
-        // v=pointers.size();//child
-        // p=pointers.at((v-1)/2);//parent
-
-        // while(v>0 && pointers.at(v)<pointers.at(p) )
-        // {
-        //     swap(pointers.at(v),pointers.at(p));
-        //     v=p;
-        //     p=(v-2)/2;
-        // }
-
-        // int v2,p2;
-        // v2=priorities.size();//child
-        // p2=priorities.at((v-1)/2);//parent
-
-        // while(v2>0 && priorities.at(v2)<priorities.at(p2) )
-        // {
-        //     swap(priorities.at(v2),priorities.at(p2));
-        //     v2=p2;
-        //     p2=(v2-2)/2;
-        // }
-
-    }
-
+    // Sift the element at index `hapindex` down until both children are
+    // no smaller than it (or it has no children left).
+    //
+    // Rewritten from the original: it read priorities.at(2*v+2) (the
+    // *right* child) guarded only by a check that the *left* child was in
+    // bounds, so any node with a left child but no right child (any heap
+    // with an even element count has at least one) threw
+    // std::out_of_range. It also blocked on `cin>>k` after every swap and
+    // printed on every step -- this is why deleteMin() below was never
+    // actually exercised by the demo.
     int percolateDown(int hapindex)
     {
-        int v=hapindex;//parent
-        int k;
-        cout<<"Child Priority: "<<priorities.at(2*v+1)<<" Parent Priorty: "<<priorities.at(v)<<endl;
-       
-        while((2*v+1)<priorities.size())// while v2 not a leaf
+        int v = hapindex;
+
+        while (true)
         {
-            cout<<"Helloooo6"<<endl;
-            int child= 2*v+1; // left child
-            if(((2*v+1)<priorities.size())&& (priorities.at(2*v+2)<priorities.at(2*v+1)))
+            int left = 2 * v + 1;
+            int right = 2 * v + 2;
+            if (left >= static_cast<int>(priorities.size()))
             {
-                cout<<"Helloooo7"<<endl;
-                child= 2*v+2; // right child if exists and has smaller key
+                break; // no children left
             }
 
-            if(priorities.at(child)<priorities.at(v))
+            int smallerChild = left;
+            if (right < static_cast<int>(priorities.size()) && priorities.at(right) < priorities.at(left))
             {
-                
-                cout<<"Helloooo8"<<endl;
-                swap(priorities.at(child),priorities.at(v));
-                swap(pointers.at(child),pointers.at(v));
-                v=child;
-                cout<<"left Child Priority: "<<priorities.at(2*v+1)<<", Right Child Priority: "<<priorities.at(2*v+2)<<", Parent Priorty: "<<priorities.at(v)<<endl;
-                cin>>k;
+                smallerChild = right;
             }
 
-            if((priorities.at(2*v+1)>priorities.at(v))&&(priorities.at(2*v+2)>priorities.at(v)))
-            {    
-                cout<<"Helloooo9"<<endl;
-                break;
+            if (priorities.at(smallerChild) < priorities.at(v))
+            {
+                swap(priorities.at(smallerChild), priorities.at(v));
+                swap(pointers.at(smallerChild), pointers.at(v));
+                pointers.at(smallerChild)->heapindex = smallerChild;
+                pointers.at(v)->heapindex = v;
+                v = smallerChild;
+            }
+            else
+            {
+                break; // heap property restored
             }
         }
-        cout<<"Helloooo9"<<endl;
         return v;
     }
 
-    //AvlTree<int>::AvlNode *  deleteMin()// delete minimum from vectors (element at index 0)
-    void  deleteMin()// delete minimum from vectors (element at index 0), Returns Task ID of deleted element
+    // Remove the minimum (index 0). Was implemented as erase-from-front,
+    // which shifts every remaining element down by one array position --
+    // that relabels every node's parent/child relationships, not just the
+    // root's, so a single percolateDown from the root cannot generally
+    // restore heap order (it happened to work in the one hand-picked demo
+    // case because that data was already fully sorted). Rewritten to the
+    // standard approach: move the last element to the root and sift it
+    // down, which is the transformation percolateDown is actually valid
+    // for.
+    void deleteMin()
     {
-        // AvlTree<int>::AvlNode* temp= pointers.at(0);
-        //Comparable temp= pointers.at(0)->TaskID;
-       // cout<<"during Heap Task ID: "<<temp<<endl;
-        if((pointers.size()>0)&&(priorities.size()>0))
+        if (pointers.empty())
         {
-            pointers.erase(pointers.begin());
-            priorities.erase(priorities.begin());
+            throw UnderflowException{ };
         }
-
-        else
+        pointers.at(0) = pointers.back();
+        priorities.at(0) = priorities.back();
+        pointers.pop_back();
+        priorities.pop_back();
+        if (!pointers.empty())
         {
-            //cout<<"Test 1"<<endl;
-            cout<<"Heap is empty!"<<endl;
+            pointers.at(0)->heapindex = 0;
+            percolateDown(0);
         }
-        percolateDown();
-        //cout<<"just after Heap Task ID: "<<temp<<endl;
-        //return temp;
     }
 
-     AvlTree<int>::AvlNode & findMin() const// return highest (smallest) priority reference to object
+    AvlTree<int>::AvlNode & findMin() const// return highest (smallest) priority reference to object
     {
-        if((pointers.size()>0)&&(priorities.size()>0))
+        if (pointers.empty())
         {
-            AvlTree<int>::AvlNode & x=*(pointers.at(0));
-            //AvlTree<int>::AvlNode * &y=x;
-            return x;
+            throw UnderflowException{ };
         }
-
-        else
-        {
-            //cout<<"Test 2"<<endl;
-            cout<<"Heap is empty!"<<endl;
-        }
-
+        return *(pointers.at(0));
     }
-    
-    bool isEmpty() const // check if heap vector sizes= 0
+
+    bool isEmpty() const // check if heap vector is empty
     {
-        if((pointers.size()==0)&&(priorities.size()==0))
-        {
-            cout<<"Heap is empty!"<<endl;
-            return true;
-
-        }
-
-        else
-        {
-            //cout<<"Test 3"<<endl;
-            cout<<"Heap has items inside!"<<endl;
-            return false;
-        }
-
+        return pointers.empty();
     }
-    
+
     int size() const// return size of heap vectors
     {
-        if(pointers.size()==priorities.size())
-        {
-            return pointers.size();
-
-        }
-        else
-        {
-            cout<<"Arrays have different size!"<<endl;
-        }
+        return static_cast<int>(pointers.size());
     }
 
     void makeEmpty()// clear vectors
     {
-        if((pointers.size()>0)&&(priorities.size()>0))
-        {
-            //cout<<"Test 5"<<endl;
-            pointers.clear();
-            priorities.clear();
-        }
-
-        else
-        {
-            //cout<<"Test 4"<<endl;
-            cout<<"Heap is empty!"<<endl;
-        }
+        pointers.clear();
+        priorities.clear();
     }
     
     // Update the priority of ID x to p
@@ -315,26 +191,21 @@ class BinaryHeap
 
     int updatePriority(int heapindex, int p)// change priority member, reorganize heap return new index
     {
-        
-        int newindex;
-        AvlTree<int>::AvlNode * temp=  pointers.at(heapindex);
-        int temp2=  priorities.at(heapindex); //temp2=k, p=j
-        priorities[heapindex] = p;
-        //cout<<"Helloooo5"<<endl;
-        
-        if(temp2>p) 
+        // Default to "didn't move" -- the old code left this uninitialized
+        // (and returned garbage) whenever the new priority equalled the
+        // old one, since neither branch below ran.
+        int newindex = heapindex;
+        int oldPriority = priorities.at(heapindex);
+        priorities.at(heapindex) = p;
+
+        if (oldPriority > p)
         {
-            //cout<<"Helloooo3"<<endl;
-            newindex= percolateUp(heapindex);
-           // cout<<"PercolateUp was called"<<endl;
+            newindex = percolateUp(heapindex);
         }
-        else if(temp2<p)
+        else if (oldPriority < p)
         {
-           //  cout<<"Helloooo4"<<endl;
             newindex = percolateDown(heapindex);
-           // cout<<"PercolateDown was called"<<endl;
         }
-        //cout<<"Nothing happened"<<endl;
         return newindex;
     }
 };
