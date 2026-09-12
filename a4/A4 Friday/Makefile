@@ -52,5 +52,5 @@ exp3.o: exp3.cpp
 # rm -f exp1 exp2 exp3 exp4*.o
 
 clean:
-	rm -f exp1 exp3*.o
+	rm -f exp1 exp3 *.o
 	

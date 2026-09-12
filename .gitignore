@@ -1,0 +1,23 @@
+# Compiled objects and binaries (this repo's Makefiles build these
+# in-place; they're rebuilt with `make` and shouldn't be committed)
+*.o
+*.exe
+*.out
+
+# Assignment-specific compiled binaries (no file extension)
+a2/DLtest
+a2/Dtest
+a2/Exp1
+a2/Exp2
+a2/Htest
+a2/EdgeCaseTest
+A3/PQdemo
+A3/AvlTree2
+A3/PQTest
+a4/A4 Friday/exp1
+a4/A4 Friday/exp3
+a4/A4 Friday/UnrolledList
+
+# Misc
+*.stackdump
+.DS_Store

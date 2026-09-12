@@ -115,33 +115,27 @@ int main()
            
         // }
     }
-    // int i=1;
-    // if(uls.first==nullptr)   //To check if the list is empty
-    // {
-    //     cout<<"Empty List!";
-    //     //getch();
-    //     return;
-    // }
-
-    // int j=0;
-    // start = clock(); 
-    // while(nod!=nullptr)
-    // {
-    //     cout<<"Node "<<i<<":"<<endl;
-    //     for(int j=0;j<nod->length;j++)
-    //         cout<<nod->arr[j]<<" ";
-    //     cout<<endl<<endl;
-    //     i++;
-    //     nod=nod->next;
-    // }
-    // finish = clock(); 
-    // time_taken = elapsed_time(start,finish); 
-    // // time1[j]=time_taken;
-    // // total1+=time1[j];
-    // // j++;    
-    // // ave1=total1/size;
-    // cout<<"Traversal time for Unrolled Linked List: "<<ave1<<endl;
-    //getch();
+    if (uls.first == nullptr)
+    {
+        cout << "Unrolled list is empty!" << endl;
+    }
+    else
+    {
+        node * n = uls.first;
+        start = clock();
+        while (n != nullptr)
+        {
+            for (int k = 0; k < n->length; k++)
+            {
+                volatile int touch = n->arr[k]; // actually visit each element
+                (void)touch;
+            }
+            n = n->next;
+        }
+        finish = clock();
+        time_taken = elapsed_time(start, finish);
+        cout << "Traversal time for Unrolled Linked List: " << time_taken << " ms" << endl;
+    }
 
     // uls.add_node(B,10000);// 10 elements per node
     // uls.add_node(B,10000);// 10 elements per node
@@ -170,16 +164,16 @@ int main()
 		cout << "List empty" << endl;
 		return 0;
 	}
-	cout << "Elements of the list are: ";
-	// Traverse the list.
+	// Traverse the list. (Printing every element here, as this used to,
+	// would make I/O cost dominate the measurement -- the whole point of
+	// this experiment is the cache-effect timing difference, which is
+	// tiny compared to writing 100,000 lines to stdout.)
 	start = clock(); 
 	while (temp != NULL) {
-		cout << temp->data << " ";
 		temp = temp->next;
 	}
 	finish = clock(); 
 	time_taken = elapsed_time(start,finish);
-    cout<<endl<<endl;
 	cout<<"Traversal time for Singly Linked List: "<<time_taken<<" ms"<<endl;
  
    

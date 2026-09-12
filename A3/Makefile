@@ -1,4 +1,4 @@
-all: PQdemo #Dtest Htest Exp1 Exp2
+all: PQdemo PQTest
 
 PQdemo: PQdemo.o  # test program for Pq.h Avltree2.h and heap2.h implementation.
 	g++ -Wall -o PQdemo PQdemo.o  
@@ -32,5 +32,12 @@ PQdemo.o: PQdemo.cpp AvlTree.h heap.h PQ.h dsexceptions.h
 #	g++ -Wall -o Exp2.o -c Exp2.cpp 
 
 
+
+PQTest: PQTest.o
+	g++ -Wall -o PQTest PQTest.o
+
+PQTest.o: PQTest.cpp AvlTree2.h heap2.h PQ.h dsexceptions.h
+	g++ -Wall -o PQTest.o -c PQTest.cpp
+
 clean:
-	rm -f PQdemo *.o
+	rm -f PQdemo PQTest *.o

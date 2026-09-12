@@ -58,41 +58,29 @@ class PQ // heap tree implemented in an array. each array index contains a heapn
     //      priority[i] is the priority for ID task[i] 
     PQ( const std::vector<Comparable> & tasks, const std::vector<int> & priorities2 ) 
     {
-        int x=tasks.size();
-        // HeapTaskIDs.reserve(tasks.size());
-        // HeapPriorities.reserve(priorities.size());
-        //cout<< tasks.size()<<endl;
-        this->Heap.priorities.reserve(x);
-        //cout<<"test"<<endl;
-        //cout<<Heap.priorities.capacity()<<endl;
-        //cin>> x;
+        int n = static_cast<int>(tasks.size());
+        Heap.priorities.reserve(n);
+        Heap.pointers.reserve(n);
 
-        for (int i = 0;i<tasks.size(); i++)
+        for (int i = 0; i < n; i++)
         {
             Heap.priorities.push_back(priorities2[i]);
-            // HeapTaskIDs.push_back(tasks[i]);
-            // HeapPriorities.push_back(priorities[i]);
         }
-        //cout<<"test2"<<endl;
-        //cout<<Heap.priorities.size()<<endl;
-        //cout<<Heap.priorities.capacity()<<endl;
-
-        for( int i = 0;i<tasks.size(); i++)
-        { 
+        for (int i = 0; i < n; i++)
+        {
             Heap.pointers.push_back(AVLTHeap.insert( tasks[i], i ));
-           // cout<<(Heap.pointers.at(i))->TaskID<<endl;//<<*(Heap.pointers[i])
         }
-        //cout<<"test3"<<endl;
-        //cout<<Heap.pointers.size()<<endl;
-        //cout<<Heap.pointers.capacity()<<endl;
-        //Heap.percolateUp();
-        // for (int i=0; i<Heap.priorities.size(); i++)
-        // {
-        //     Heap.priorities.push_back(i);
-        //     cout<< Heap.priorities[i]<<endl;
-        // }
-        // cout<<"test4"<<endl;
-        
+
+        // The arrays above are in *input* order, which is only a valid
+        // min-heap by coincidence (e.g. if priorities2 happens to already
+        // be sorted, as in the demo). Heapify bottom-up so findMin()/
+        // deleteMin() are correct for arbitrary priorities too. This also
+        // leaves every node's heapindex matching its post-heapify
+        // position, since percolateDown() keeps that in sync on each swap.
+        for (int i = n / 2 - 1; i >= 0; i--)
+        {
+            Heap.percolateDown(i);
+        }
     }		
 
     // Emptiness check 
@@ -104,20 +92,27 @@ class PQ // heap tree implemented in an array. each array index contains a heapn
 
     // Deletes and Returns a task ID with minimum priority
     //    Throws exception if queue is empty
-    const Comparable & deleteMin() //Remove and return the object with smallest priority.
+    Comparable deleteMin() //Remove and return the object with smallest priority.
     {
-        // AvlTree<int>::AvlNode* temp =Heap.findMin();
-        // AVLTHeap.deleteMin(Heap.deleteMin());
-        // return temp->TaskID;
-        //AvlTree<int>::AvlNode * temp =&(Heap.findMin());
-
-        Comparable temp =Heap.pointers.at(0)->TaskID;
-        cout<<"Before Heap Task ID: "<<temp<<endl;
-        int temp3= AVLTHeap.deleteMin(Heap.pointers.at(0));
-        cout<<"AVL Task ID: "<<temp3<<endl;
+        // Was: passed Heap.pointers.at(0) (a slot in the heap's own array)
+        // to AVLTHeap.deleteMin(AvlNode*&), which only correctly unlinks a
+        // node from the AVL tree if the reference it's given *is* that
+        // node's actual parent-link inside the tree. Heap.pointers[0] is
+        // just a separate alias copy of the same address -- reassigning
+        // it never touched the real link (root, or some other node's
+        // ->left/->right) that the AVL tree itself uses to reach this
+        // node, leaving the tree with a dangling pointer to freed memory.
+        // AVLTHeap.remove(taskID) is the tree's own by-key removal, which
+        // starts at `root` and correctly updates parent links throughout
+        // the recursion, so use that instead.
+        if (Heap.isEmpty())
+        {
+            throw UnderflowException{ };
+        }
+        Comparable minTaskID = Heap.pointers.at(0)->TaskID;
         Heap.deleteMin();
-        cout<<"New minimum Heap Task ID: "<<Heap.pointers.at(0)->TaskID<<endl;
-        return temp;
+        AVLTHeap.remove(minTaskID);
+        return minTaskID;
     }
 
     // Returns an ID with minimum priority without removing it
@@ -132,19 +127,34 @@ class PQ // heap tree implemented in an array. each array index contains a heapn
     // Insert ID x with priority p.
     void insert( const Comparable & x, int p )
     {
-          Heap.priorities.push_back(p);
-          Heap.pointers.push_back(AVLTHeap.insert( x, Heap.priorities.size()));   
+        // Was: pushed onto Heap.priorities first, then used its *new*
+        // size (already counting the just-added element) as the array
+        // index for the AVL side -- off by one, since the element actually
+        // lands at size()-1. Delegates to Heap.insert() instead, which
+        // pushes both parallel arrays together, computes the index once,
+        // and percolates up to restore heap order (which this never did
+        // either).
+        int idx = static_cast<int>(Heap.priorities.size());
+        AvlTree<int>::AvlNode * node = AVLTHeap.insert( x, idx );
+        Heap.insert( node, p );
     }
 
     
     // Update the priority of ID x to p
-    //    Inserts x with p if s not already in the queue
+    //    Inserts x with p if x is not already in the queue
     void updatePriority( const Comparable & x, int p ) 
     {
-        //cout<<"Helloooo"<<endl;
-        int oldindex=AVLTHeap.find(x);
-        int newindex= Heap.updatePriority(oldindex, p);
-        //cout<<"Helloooo2"<<endl;
+        int oldindex = AVLTHeap.find(x);
+        if (oldindex < 0)
+        {
+            // Not currently in the queue: the documented contract is to
+            // insert it instead (the old code assumed x was always
+            // already present, and fed find()'s undefined "not found"
+            // return value straight into an array index).
+            insert(x, p);
+            return;
+        }
+        int newindex = Heap.updatePriority(oldindex, p);
         AVLTHeap.updatePriority( Heap.pointers[newindex], x, newindex);
     }
 

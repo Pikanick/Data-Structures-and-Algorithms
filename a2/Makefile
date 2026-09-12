@@ -1,4 +1,4 @@
-all: DLtest Dtest Htest Exp1 Exp2
+all: DLtest Dtest Htest Exp1 Exp2 EdgeCaseTest
 
 DLtest: DLtest.o  # test program for displayLinks() implementation.
 	g++ -Wall -o DLtest DLtest.o  
@@ -32,5 +32,12 @@ Exp2.o: Exp2.cpp BinarySearchTree.h AvlTree.h dsexceptions.h
 	g++ -Wall -o Exp2.o -c Exp2.cpp 
 
 
+
+EdgeCaseTest: EdgeCaseTest.o
+	g++ -Wall -o EdgeCaseTest EdgeCaseTest.o
+
+EdgeCaseTest.o: EdgeCaseTest.cpp BinarySearchTree.h AvlTree.h dsexceptions.h
+	g++ -Wall -o EdgeCaseTest.o -c EdgeCaseTest.cpp
+
 clean:
-	rm -f DLtest Dtest Htest Exp1 Exp2 *.o
+	rm -f DLtest Dtest Htest Exp1 Exp2 EdgeCaseTest *.o
